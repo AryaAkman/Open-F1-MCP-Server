@@ -49,16 +49,34 @@ On the right side of the screen, look under Local MCP Servers and verify
 <br>
 
 ## Usage examples
-Once connected, you can ask Claude:
+The following example prompts can provide ideas on how to utilize this MCP Server 
 
-"Show me all F1 sessions from 2024"
+- ### Sessions (Race) related usage examples
+    - "Show me all F1 sessions from 2024"
+    
+    - "Get the race session details for Monaco 2023"
 
-"Get the race session details for Monaco 2023"
+- ### Driver related usage examples
+    - "Who drove in session 9158?" (using a session_key)
 
-"Who drove in session 9158?" (using a session_key)
+    - "Show me all Ferrari drivers from the 2024 Monza race"
 
-"Show me all Ferrari drivers from the 2024 Monza race"
+- ### Lap information related usage examples
+    - "Get lap 10 data for all drivers in the Monaco 2024 race"
+
+    - "What was Max Verstappen's fastest lap in the last race?"
+
+    - "Compare sector times for lap 1 between drivers 1 and 44 in session 9158"
 
 <br>
 
 The server handles the API calls to OpenF1 and returns formatted data that Claude can interpret and present to you
+
+<br>
+
+
+## Supported APIs in this version (v1.1):
+- get_sessions: Retrieve F1 race sessions with optional filtering
+- get_drivers: Retrieve driver information for all drivers or a specific session
+- get_laps: Retrieve lap data for specific session/driver/lap combinations
+  
