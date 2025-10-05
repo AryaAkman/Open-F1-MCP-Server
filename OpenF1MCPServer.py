@@ -7,6 +7,7 @@ from the OpenF1 API (https://openf1.org/).
 Tools:
 - get_sessions: Retrieve F1 race sessions with optional filtering
 - get_drivers: Retrieve driver information for all drivers or a specific session
+- get_laps: Retrieve lap data for specific session/driver/lap combinations
 """
 
 import asyncio
@@ -108,6 +109,31 @@ async def list_tools() -> list[Tool]:
                     }
                 }
             }
+        ),
+        Tool(
+            name="get_laps",
+            description=(
+                "Retrieve lap data for specific sessions, drivers, and laps. "
+                "Returns detailed lap information including lap time, sector times, duration, and position. "
+                "Can filter by session_key, driver_number, lap_number, and other parameters."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "session_key": {
+                        "type": "integer",
+                        "description": "Filter by session_key (required for meaningful results)"
+                    },
+                    "driver_number": {
+                        "type": "integer",
+                        "description": "Filter by driver number (e.g., 1, 44, 16)"
+                    },
+                    "lap_number": {
+                        "type": "integer",
+                        "description": "Filter by specific lap number"
+                    }
+                }
+            }
         )
     ]
 
@@ -205,6 +231,82 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             return [TextContent(
                 type="text",
                 text=f"Error fetching drivers: {str(e)}"
+            )]
+    
+    elif name == "get_laps":
+        # Build query parameters from arguments
+        params = {}
+        
+        if "session_key" in arguments:
+            params["session_key"] = arguments["session_key"]
+        if "driver_number" in arguments:
+            params["driver_number"] = arguments["driver_number"]
+        if "lap_number" in arguments:
+            params["lap_number"] = arguments["lap_number"]
+        
+        try:
+            laps = await fetch_data("laps", params)
+            
+            if not laps:
+                return [TextContent(
+                    type="text",
+                    text="No lap data found matching the criteria."
+                )]
+            
+            # Format the response
+            filters = []
+            if "session_key" in arguments:
+                filters.append(f"session {arguments['session_key']}")
+            if "driver_number" in arguments:
+                filters.append(f"driver #{arguments['driver_number']}")
+            if "lap_number" in arguments:
+                filters.append(f"lap {arguments['lap_number']}")
+            
+            filter_str = " for " + ", ".join(filters) if filters else ""
+            result = f"Found {len(laps)} lap(s){filter_str}:\n\n"
+            
+            for lap in laps:
+                result += f"Lap Number: {lap.get('lap_number')}\n"
+                result += f"Driver Number: {lap.get('driver_number')}\n"
+                result += f"Session Key: {lap.get('session_key')}\n"
+                
+                if lap.get('lap_duration'):
+                    result += f"Lap Duration: {lap.get('lap_duration')} seconds\n"
+                if lap.get('duration_sector_1'):
+                    result += f"Sector 1: {lap.get('duration_sector_1')} seconds\n"
+                if lap.get('duration_sector_2'):
+                    result += f"Sector 2: {lap.get('duration_sector_2')} seconds\n"
+                if lap.get('duration_sector_3'):
+                    result += f"Sector 3: {lap.get('duration_sector_3')} seconds\n"
+                
+                if lap.get('segments_sector_1'):
+                    result += f"Sector 1 Segments: {lap.get('segments_sector_1')}\n"
+                if lap.get('segments_sector_2'):
+                    result += f"Sector 2 Segments: {lap.get('segments_sector_2')}\n"
+                if lap.get('segments_sector_3'):
+                    result += f"Sector 3 Segments: {lap.get('segments_sector_3')}\n"
+                
+                if lap.get('i1_speed') is not None:
+                    result += f"Speed Trap 1 (I1): {lap.get('i1_speed')} km/h\n"
+                if lap.get('i2_speed') is not None:
+                    result += f"Speed Trap 2 (I2): {lap.get('i2_speed')} km/h\n"
+                if lap.get('st_speed') is not None:
+                    result += f"Speed Trap (ST): {lap.get('st_speed')} km/h\n"
+                
+                if lap.get('is_pit_out_lap') is not None:
+                    result += f"Pit Out Lap: {lap.get('is_pit_out_lap')}\n"
+                
+                if lap.get('date_start'):
+                    result += f"Start Time: {lap.get('date_start')}\n"
+                
+                result += "-" * 50 + "\n\n"
+            
+            return [TextContent(type="text", text=result)]
+            
+        except httpx.HTTPError as e:
+            return [TextContent(
+                type="text",
+                text=f"Error fetching lap data: {str(e)}"
             )]
     
     else:
