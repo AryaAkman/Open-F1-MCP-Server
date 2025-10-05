@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="https://openf1.org/images/logo-5882a735.png" width="150" height="150"/>
+</p>
+
 # Open-F1-MCP-Server
 This project implements the MCP Server for Open Formula 1 
 
