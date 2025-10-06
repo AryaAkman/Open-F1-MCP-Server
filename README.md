@@ -17,10 +17,10 @@ The API offers a wealth of information, including lap timings, car telemetry, ra
 
 <br>
 
-# Tools (as of v1.1)
+# Tools (as of v1.2)
 
 ### get_sessions:
-    Retrieve F1 race sessions. Can filter by year, country, circuit, session type, etc. Returns session details including session_key, date, location, and type.
+Retrieve F1 race sessions. Can filter by year, country, circuit, session type, etc. Returns session details including session_key, date, location, and type.
 
     Parameter	        Description
     year		        Filter by year (e.g., 2023, 2024).
@@ -32,7 +32,7 @@ The API offers a wealth of information, including lap timings, car telemetry, ra
     Other filters		session_type, location, country_code, meeting_key, gmt_offset
   
 ### get_drivers:
-    Retrieve driver information. Can get all current drivers or filter by session_key to get drivers who participated in a specific session. Returns driver details including name, number, team, country, and headshot URL.
+Retrieve driver information. Can get all current drivers or filter by session_key to get drivers who participated in a specific session. Returns driver details including name, number, team, country, and headshot URL.
 
     Parameter	    	Description
     session_key	    	Optional. Filter drivers by session_key to get participants from a specific session.
@@ -40,12 +40,20 @@ The API offers a wealth of information, including lap timings, car telemetry, ra
     team_name        	Optional. Filter by team name (e.g., 'Red Bull Racing', 'Ferrari').
   
 ### get_laps:
-  Retrieve pit stop data for specific sessions. Returns detailed pit stop information including duration, lap number, and timing.
+Retrieve pit stop data for specific sessions. Returns detailed pit stop information including duration, lap number, and timing.
 
     Parameter	    	Description
     session_key	        Required for meaningful results. Filter by the unique session key.
     driver_number		Optional. Filter by driver number (e.g., 1, 44, 16).
     pit_duration		Optional. Upper bound for pit duration in seconds (e.g., 30.0 for stops under 30 seconds).
+
+### overtakes:
+Retrieve overtake data showing position changes between drivers. An overtake refers to one driver (the overtaking driver) exchanging positions with another driver (the overtaken driver). Returns detailed information including the drivers involved, the lap number, and the timing of the event.
+
+    Parameter	                Description
+    session_key	    	        Required for meaningful results. Filter by the unique session key.
+    overtaking_driver_number    Optional. Filter by the driver number of the driver who performed the overtake (e.g., 1, 44).
+    overtaken_driver_number		Optional. Filter by the driver number of the driver who was overtaken (e.g., 16, 63).
 
 <br>
 
@@ -99,6 +107,19 @@ The following example prompts can provide ideas on how to utilize this MCP Serve
     - "What was Max Verstappen's fastest lap in the last race?"
 
     - "Compare sector times for lap 1 between drivers 1 and 44 in session 9158"
+
+- ### Overtakes related usage examples
+    - "Show me all overtakes from the Monaco 2024 race"
+      
+    - "How many times did driver 1 overtake someone in session 9158?"
+    
+    - "Who overtook driver 44 in the last race?"
+    
+    - "Show me all overtakes involving driver 16"
+    
+    - "Which lap had the most overtakes in session 9158?"
+    
+    - "Show me all battles between drivers 1 and 16" (can use both parameters)
 
 <br>
 
