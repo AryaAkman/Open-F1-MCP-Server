@@ -7,6 +7,8 @@ This project implements the MCP Server for Open Formula 1
 
 For more detailed information, please check [Implementation of Open F1 MCP Server](www.aryaakman.com/projects/Open-F1-MCP-Server.html)
 
+I am a high school student and would like to know if my project is liked and/or used. If you like or use this MCP Server, please star in GitHub and share with your friends - thank you !!
+
 <br>
 
 
@@ -38,8 +40,16 @@ Retrieve driver information. Can get all current drivers or filter by session_ke
     session_key	    	Optional. Filter drivers by session_key to get participants from a specific session.
     driver_number	   	Optional. Filter by driver number (e.g., 1, 44, 16).
     team_name        	Optional. Filter by team name (e.g., 'Red Bull Racing', 'Ferrari').
-  
+
 ### get_laps:
+Retrieve lap data for specific sessions, drivers, and laps. Returns detailed lap information including lap time, sector times, duration, and position.
+
+    Parameter	    	Description
+    session_key	    	Required for meaningful results. Filter by the unique session key.
+    driver_number	   	Optional. Filter by driver number (e.g., 1, 44, 16).
+    lap_number	    	Optional. Filter by a specific lap number.
+
+### get_pit_stops:
 Retrieve pit stop data for specific sessions. Returns detailed pit stop information including duration, lap number, and timing.
 
     Parameter	    	Description
@@ -47,7 +57,7 @@ Retrieve pit stop data for specific sessions. Returns detailed pit stop informat
     driver_number		Optional. Filter by driver number (e.g., 1, 44, 16).
     pit_duration		Optional. Upper bound for pit duration in seconds (e.g., 30.0 for stops under 30 seconds).
 
-### overtakes:
+### get_overtakes:
 Retrieve overtake data showing position changes between drivers. An overtake refers to one driver (the overtaking driver) exchanging positions with another driver (the overtaken driver). Returns detailed information including the drivers involved, the lap number, and the timing of the event.
 
     Parameter	                Description
@@ -108,6 +118,19 @@ The following example prompts can provide ideas on how to utilize this MCP Serve
 
     - "Compare sector times for lap 1 between drivers 1 and 44 in session 9158"
 
+- ### Pit stop related usage examples
+    - "Show me all pit stops from the 2025 Singapore Grand Prix"
+      
+    - "Get pit stops for driver 1 in session 9158"
+    
+    - "Find all pit stops under 25 seconds in the last race"
+    
+    - "Which driver had the fastest pit stop in session Monaco 2025 race?"
+    
+    - "Compare pit stop times between Red Bull and Ferrari drivers"
+    
+    - "Show me all pit stops that took longer than 30 seconds in Singapore 2025"
+  
 - ### Overtakes related usage examples
     - "Show me all overtakes from the Monaco 2024 race"
       
