@@ -17,7 +17,39 @@ The API offers a wealth of information, including lap timings, car telemetry, ra
 
 <br>
 
-# Open F1 MCP Server Installation instructions for Claude:
+# Tools (as of v1.1)
+
+### get_sessions:
+    Retrieve F1 race sessions. Can filter by year, country, circuit, session type, etc. Returns session details including session_key, date, location, and type.
+
+    Parameter	        Description
+    year		        Filter by year (e.g., 2023, 2024).
+    country_name	    Filter by country name (e.g., 'Monaco', 'Italy').
+    circuit_short_name	Filter by circuit short name (e.g., 'Monza', 'Monaco').
+    session_name    	Filter by session name (e.g., 'Race', 'Qualifying', 'Sprint').
+    session_key	    	Get specific session by its unique session_key.
+    date_start	    	Filter by start date (ISO format: YYYY-MM-DD). Supports filters like >= and <=.
+    Other filters		session_type, location, country_code, meeting_key, gmt_offset
+  
+### get_drivers:
+    Retrieve driver information. Can get all current drivers or filter by session_key to get drivers who participated in a specific session. Returns driver details including name, number, team, country, and headshot URL.
+
+    Parameter	    	Description
+    session_key	    	Optional. Filter drivers by session_key to get participants from a specific session.
+    driver_number	   	Optional. Filter by driver number (e.g., 1, 44, 16).
+    team_name        	Optional. Filter by team name (e.g., 'Red Bull Racing', 'Ferrari').
+  
+### get_laps:
+  Retrieve pit stop data for specific sessions. Returns detailed pit stop information including duration, lap number, and timing.
+
+    Parameter	    	Description
+    session_key	        Required for meaningful results. Filter by the unique session key.
+    driver_number		Optional. Filter by driver number (e.g., 1, 44, 16).
+    pit_duration		Optional. Upper bound for pit duration in seconds (e.g., 30.0 for stops under 30 seconds).
+
+<br>
+
+# Installation instructions:
 
 ## 1. Install dependencies:
 
@@ -75,8 +107,5 @@ The server handles the API calls to OpenF1 and returns formatted data that Claud
 <br>
 
 
-## Supported APIs in this version (v1.1):
-- get_sessions: Retrieve F1 race sessions with optional filtering
-- get_drivers: Retrieve driver information for all drivers or a specific session
-- get_laps: Retrieve lap data for specific session/driver/lap combinations
+
   
