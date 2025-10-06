@@ -8,6 +8,8 @@ Tools:
 - get_sessions: Retrieve F1 race sessions with optional filtering
 - get_drivers: Retrieve driver information for all drivers or a specific session
 - get_laps: Retrieve lap data for specific session/driver/lap combinations
+- get_pit_stops: Retrieve pit stop data for specific sessions with optional duration filtering
+- get_overtakes: Retrieve overtake data showing position changes between drivers
 """
 
 import asyncio
@@ -131,6 +133,57 @@ async def list_tools() -> list[Tool]:
                     "lap_number": {
                         "type": "integer",
                         "description": "Filter by specific lap number"
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="get_pit_stops",
+            description=(
+                "Retrieve pit stop data for specific sessions. "
+                "Returns detailed pit stop information including duration, lap number, and timing. "
+                "Can filter by session_key, driver_number, and set upper bound on pit duration."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "session_key": {
+                        "type": "integer",
+                        "description": "Filter by session_key (required for meaningful results)"
+                    },
+                    "driver_number": {
+                        "type": "integer",
+                        "description": "Optional: Filter by driver number (e.g., 1, 44, 16)"
+                    },
+                    "pit_duration": {
+                        "type": "number",
+                        "description": "Optional: Upper bound for pit duration in seconds (e.g., 30.0 for stops under 30 seconds)"
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="get_overtakes",
+            description=(
+                "Retrieve overtake data showing position changes between drivers. "
+                "An overtake refers to one driver (overtaking driver) exchanging positions with another driver (overtaken driver). "
+                "Returns detailed overtake information including drivers involved, lap number, and timing. "
+                "Can filter by session_key, overtaking driver, and overtaken driver."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "session_key": {
+                        "type": "integer",
+                        "description": "Filter by session_key (required for meaningful results)"
+                    },
+                    "overtaking_driver_number": {
+                        "type": "integer",
+                        "description": "Optional: Filter by the driver number of the overtaking driver"
+                    },
+                    "overtaken_driver_number": {
+                        "type": "integer",
+                        "description": "Optional: Filter by the driver number of the overtaken driver"
                     }
                 }
             }
@@ -307,6 +360,119 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             return [TextContent(
                 type="text",
                 text=f"Error fetching lap data: {str(e)}"
+            )]
+    
+    elif name == "get_pit_stops":
+        # Build query parameters from arguments
+        params = {}
+        
+        if "session_key" in arguments:
+            params["session_key"] = arguments["session_key"]
+        if "driver_number" in arguments:
+            params["driver_number"] = arguments["driver_number"]
+        if "pit_duration" in arguments:
+            # Use <= operator for upper bound
+            params["pit_duration"] = f"<={arguments['pit_duration']}"
+        
+        try:
+            pit_stops = await fetch_data("pit", params)
+            
+            if not pit_stops:
+                return [TextContent(
+                    type="text",
+                    text="No pit stop data found matching the criteria."
+                )]
+            
+            # Format the response
+            filters = []
+            if "session_key" in arguments:
+                filters.append(f"session {arguments['session_key']}")
+            if "driver_number" in arguments:
+                filters.append(f"driver #{arguments['driver_number']}")
+            if "pit_duration" in arguments:
+                filters.append(f"duration ≤ {arguments['pit_duration']}s")
+            
+            filter_str = " for " + ", ".join(filters) if filters else ""
+            result = f"Found {len(pit_stops)} pit stop(s){filter_str}:\n\n"
+            
+            for pit in pit_stops:
+                result += f"Driver Number: {pit.get('driver_number')}\n"
+                result += f"Session Key: {pit.get('session_key')}\n"
+                result += f"Lap Number: {pit.get('lap_number')}\n"
+                
+                if pit.get('pit_duration') is not None:
+                    result += f"Pit Duration: {pit.get('pit_duration')} seconds\n"
+                
+                if pit.get('date'):
+                    result += f"Time: {pit.get('date')}\n"
+                
+                if pit.get('meeting_key') is not None:
+                    result += f"Meeting Key: {pit.get('meeting_key')}\n"
+                
+                result += "-" * 50 + "\n\n"
+            
+            return [TextContent(type="text", text=result)]
+            
+        except httpx.HTTPError as e:
+            return [TextContent(
+                type="text",
+                text=f"Error fetching pit stop data: {str(e)}"
+            )]
+    
+    elif name == "get_overtakes":
+        # Build query parameters from arguments
+        params = {}
+        
+        if "session_key" in arguments:
+            params["session_key"] = arguments["session_key"]
+        if "overtaking_driver_number" in arguments:
+            params["overtaking_driver_number"] = arguments["overtaking_driver_number"]
+        if "overtaken_driver_number" in arguments:
+            params["overtaken_driver_number"] = arguments["overtaken_driver_number"]
+        
+        try:
+            overtakes = await fetch_data("overtakes", params)
+            
+            if not overtakes:
+                return [TextContent(
+                    type="text",
+                    text="No overtake data found matching the criteria."
+                )]
+            
+            # Format the response
+            filters = []
+            if "session_key" in arguments:
+                filters.append(f"session {arguments['session_key']}")
+            if "overtaking_driver_number" in arguments:
+                filters.append(f"overtaking driver #{arguments['overtaking_driver_number']}")
+            if "overtaken_driver_number" in arguments:
+                filters.append(f"overtaken driver #{arguments['overtaken_driver_number']}")
+            
+            filter_str = " for " + ", ".join(filters) if filters else ""
+            result = f"Found {len(overtakes)} overtake(s){filter_str}:\n\n"
+            
+            for overtake in overtakes:
+                result += f"Overtaking Driver: #{overtake.get('overtaking_driver_number')}\n"
+                result += f"Overtaken Driver: #{overtake.get('overtaken_driver_number')}\n"
+                result += f"Session Key: {overtake.get('session_key')}\n"
+                
+                if overtake.get('lap_number') is not None:
+                    result += f"Lap Number: {overtake.get('lap_number')}\n"
+                
+                if overtake.get('date'):
+                    result += f"Time: {overtake.get('date')}\n"
+                
+                if overtake.get('meeting_key') is not None:
+                    result += f"Meeting Key: {overtake.get('meeting_key')}\n"
+                
+                result += "-" * 50 + "\n\n"
+            
+            return [TextContent(type="text", text=result)]
+            
+        except httpx.HTTPError as e:
+            return [TextContent(
+                type="text",
+                text=f"Error fetching overtake data: {str(e)}"
             )]
     
     else:
