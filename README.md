@@ -9,6 +9,7 @@ For more detailed information, please check [Implementation of Open F1 MCP Serve
 
 I am a high school student and would like to know if my project is liked and/or used. If you like or use this MCP Server, please star in GitHub and share with your friends - thank you !!
 
+Arya Akman
 <br>
 
 
