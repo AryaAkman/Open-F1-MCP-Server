@@ -5,7 +5,7 @@
 # Open-F1-MCP-Server
 This project implements the MCP Server for Open Formula 1 
 
-For more detailed information, please check [Implementation of Open F1 MCP Server](www.aryaakman.com/projects/Open-F1-MCP-Server.html)
+For more detailed information, please check [Implementation of Open F1 MCP Server](https://aryaakman.com/open-f1-mcp-server)
 
 I am a high school student and would like to know if my project is liked and/or used. If you like or use this MCP Server, please star in GitHub and share with your friends - thank you !!
 
